@@ -1,0 +1,109 @@
+#!/bin/bash
+# =============================================================================
+# SpeedOS - SpeedGamer Mode
+# Otimização agressiva para jogos.
+# Deve ser executado com privilégios de root.
+# Uso: speed-gamer-mode [on|off]
+# =============================================================================
+
+# Cores para debug
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+log() { echo -e "${GREEN}[SpeedGamer Mode]${NC} $1"; }
+error() { echo -e "${RED}[ERRO]${NC} $1" >&2; }
+
+if [ "$#" -ne 1 ]; then
+    error "Uso: speed-gamer-mode [on|off]"
+    exit 1
+fi
+
+MODE="$1"
+
+# Arquivo de estado para reverter as configurações
+STATE_FILE="/var/lib/speedos/gamer_mode_state"
+
+if [ "$MODE" == "on" ]; then
+    log "Ativando SpeedGamer Mode..."
+    
+    # 1. Salvar estado atual (para o modo 'off')
+    log "Salvando estado atual para restauração..."
+    
+    # Salva o governor atual (apenas o primeiro CPU é suficiente)
+    CURRENT_GOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo "ondemand")
+    echo "GOVERNOR=$CURRENT_GOVERNOR" > "$STATE_FILE"
+    
+    # Salva a swappiness atual
+    CURRENT_SWAPPINESS=$(cat /proc/sys/vm/swappiness 2>/dev/null || echo "60")
+    echo "SWAPPINESS=$CURRENT_SWAPPINESS" >> "$STATE_FILE"
+    
+    # 2. Otimização de CPU Governor para 'performance'
+    log "Configurando CPU Governor para 'performance'..."
+    for CPU_FREQ_PATH in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+        if [ -f "$CPU_FREQ_PATH" ]; then
+            echo "performance" > "$CPU_FREQ_PATH"
+        fi
+    done
+    
+    # 3. Swappiness para 1 (mínimo)
+    log "Ajustando swappiness para 1 (mínimo)..."
+    echo 1 > /proc/sys/vm/swappiness
+    
+    # 4. Desativar serviços não essenciais (Bluetooth, CUPS)
+    log "Desativando serviços não essenciais (Bluetooth, CUPS)..."
+    systemctl stop bluetooth.service 2>/dev/null || true
+    systemctl stop cups.service 2>/dev/null || true
+    
+    # 5. Limpeza de Memória
+    log "Liberando cache de memória..."
+    sync
+    echo 3 > /proc/sys/vm/drop_caches
+    
+    log "SpeedGamer Mode ATIVADO. Máxima performance para jogos."
+
+elif [ "$MODE" == "off" ]; then
+    log "Desativando SpeedGamer Mode e restaurando configurações..."
+    
+    if [ -f "$STATE_FILE" ]; then
+        # Carrega o estado salvo
+        source "$STATE_FILE"
+        
+        # 1. Restaurar CPU Governor
+        log "Restaurando CPU Governor para $GOVERNOR..."
+        for CPU_FREQ_PATH in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+            if [ -f "$CPU_FREQ_PATH" ]; then
+                echo "$GOVERNOR" > "$CPU_FREQ_PATH"
+            fi
+        done
+        
+        # 2. Restaurar Swappiness
+        log "Restaurando swappiness para $SWAPPINESS..."
+        echo "$SWAPPINESS" > /proc/sys/vm/swappiness
+        
+        # 3. Reativar serviços (apenas os essenciais que foram desativados)
+        log "Reativando serviços essenciais (Bluetooth, CUPS)..."
+        systemctl start bluetooth.service 2>/dev/null || true
+        systemctl start cups.service 2>/dev/null || true
+        
+        # Remove o arquivo de estado
+        rm "$STATE_FILE"
+        log "SpeedGamer Mode DESATIVADO. Configurações restauradas."
+    else
+        error "Arquivo de estado não encontrado. Restaurando configurações padrão (ondemand/60)..."
+        
+        # Restaurar padrão seguro
+        for CPU_FREQ_PATH in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+            if [ -f "$CPU_FREQ_PATH" ]; then
+                echo "ondemand" > "$CPU_FREQ_PATH"
+            fi
+        done
+        echo 60 > /proc/sys/vm/swappiness
+    fi
+    
+else
+    error "Argumento inválido. Uso: speed-gamer-mode [on|off]"
+    exit 1
+fi
+
+exit 0

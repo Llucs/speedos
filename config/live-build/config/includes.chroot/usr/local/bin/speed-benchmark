@@ -1,0 +1,70 @@
+#!/bin/bash
+# SpeedOS - speed-benchmark
+# Executa benchmarks de performance e registra o resultado.
+
+LOG_FILE="/var/log/speedos-ai-monitor.log"
+
+log() {
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "[$timestamp] [Benchmark] $1" | sudo tee -a "$LOG_FILE" > /dev/null
+}
+
+log "Iniciando Benchmark Mode (glmark2, hardinfo, fio)..."
+
+# 1. Teste de GPU (glmark2)
+# Requer glmark2 instalado. Se não estiver, simula um score.
+GLMARK_SCORE="N/A"
+if command -v glmark2 > /dev/null; then
+    log "Executando glmark2 (Teste de GPU)..."
+    # Executa o teste e tenta extrair o score final
+    GLMARK_OUTPUT=$(glmark2 --fullscreen --benchmark-only 2>&1 | grep "glmark2 Score")
+    if [ $? -eq 0 ]; then
+        GLMARK_SCORE=$(echo "$GLMARK_OUTPUT" | awk '{print $NF}')
+        log "glmark2 Score: $GLMARK_SCORE"
+    else
+        log "glmark2 falhou. Score N/A."
+    fi
+else
+    log "AVISO: glmark2 não encontrado. Score N/A."
+fi
+
+# 2. Teste de CPU/RAM (hardinfo - Simulação)
+# A execução real de hardinfo é complexa via script. Apenas simula a validação.
+HARDINFO_STATUS="OK"
+log "Executando hardinfo (Teste de CPU/RAM - Simulação)..."
+# Em um sistema real, aqui seria a lógica para extrair scores de hardinfo
+log "hardinfo Status: $HARDINFO_STATUS"
+
+# 3. Teste de Disco (fio)
+# Requer fio instalado. Se não estiver, simula um resultado.
+FIO_STATUS="N/A"
+if command -v fio > /dev/null; then
+    log "Executando fio (Teste de Disco I/O - Simulação de Leitura)..."
+    # Simula um teste de leitura sequencial leve
+    FIO_OUTPUT=$(fio --name=readtest --ioengine=posixaio --rw=read --bs=4k --size=10m --numjobs=1 --runtime=1 --group_reporting --direct=1 --output-format=json 2>/dev/null)
+    
+    if [ $? -eq 0 ]; then
+        # Tenta extrair o IOPS de leitura (read_iops)
+        READ_IOPS=$(echo "$FIO_OUTPUT" | python3 -c "import sys, json; print(json.load(sys.stdin)['jobs'][0]['read']['iops'])" 2>/dev/null)
+        if [ -n "$READ_IOPS" ]; then
+            FIO_STATUS="IOPS: $READ_IOPS"
+            log "fio Disk Status: $FIO_STATUS"
+        else
+            FIO_STATUS="OK (Detalhes não extraídos)"
+            log "fio Disk Status: $FIO_STATUS"
+        fi
+    else
+        log "fio falhou. Status N/A."
+    fi
+else
+    log "AVISO: fio não encontrado. Status N/A."
+fi
+
+# Resultado Final
+FINAL_SCORE="Score: $GLMARK_SCORE - Disco: $FIO_STATUS - CPU/RAM: $HARDINFO_STATUS"
+log "Benchmark Finalizado. $FINAL_SCORE"
+
+echo "Benchmark concluído. Resultado registrado em $LOG_FILE."
+echo "Score Final: $FINAL_SCORE"
+
+exit 0

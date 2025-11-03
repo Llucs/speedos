@@ -1,0 +1,11 @@
+[Unit]
+Description=SpeedOS First Boot Setup
+After=network.target lightdm.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/speedos-first-boot.sh
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

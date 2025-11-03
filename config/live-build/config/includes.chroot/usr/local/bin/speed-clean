@@ -1,0 +1,44 @@
+#!/bin/bash
+# =============================================================================
+# SpeedOS - SpeedClean
+# Limpeza de cache e arquivos temporários.
+# Deve ser executado com privilégios de root.
+# =============================================================================
+
+# Cores para debug
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+log() { echo -e "${GREEN}[SpeedClean]${NC} $1"; }
+
+log "Iniciando limpeza do sistema..."
+
+# 1. Limpeza de cache de pacotes APT
+log "Limpando cache de pacotes APT..."
+apt clean
+
+# 2. Limpeza de arquivos temporários do sistema
+log "Limpando arquivos temporários em /tmp e /var/tmp..."
+# O comando 'rm -rf' é perigoso, mas necessário para limpeza completa de temporários.
+# Usamos 'find' para ser mais seletivo e evitar problemas de permissão em /tmp
+find /tmp -mindepth 1 -delete 2>/dev/null || true
+find /var/tmp -mindepth 1 -delete 2>/dev/null || true
+
+# 3. Limpeza de logs antigos
+log "Limpando logs antigos do journal (retenção de 7 dias)..."
+journalctl --vacuum-time=7d
+
+# 4. Limpeza de miniaturas de cache de usuário (para o usuário que chamou o script)
+# Usamos $SUDO_USER para obter o usuário que invocou o sudo.
+if [ -n "$SUDO_USER" ] && [ -d "/home/$SUDO_USER/.cache/thumbnails" ]; then
+    log "Limpando cache de miniaturas para o usuário $SUDO_USER..."
+    rm -rf "/home/$SUDO_USER/.cache/thumbnails/*"
+fi
+
+# 5. Limpeza de cache de memória (opcional, mas útil após limpeza de disco)
+log "Liberando cache de memória (drop_caches)..."
+sync
+echo 3 > /proc/sys/vm/drop_caches
+
+log "SpeedClean concluído. Espaço em disco liberado e caches limpos."
+exit 0

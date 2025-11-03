@@ -1,0 +1,9 @@
+[Unit]
+Description=Run SpeedOS Update Daily
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=24h
+
+[Install]
+WantedBy=timers.target

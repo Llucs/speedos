@@ -1,0 +1,12 @@
+[Unit]
+Description=SpeedOS AI Monitor and Optimizer
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/speedos/speedboost/speed-ai-monitor.py
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

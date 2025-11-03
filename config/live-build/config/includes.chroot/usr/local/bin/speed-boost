@@ -1,0 +1,56 @@
+#!/bin/bash
+# =============================================================================
+# SpeedOS - SpeedBoost
+# Otimização de performance para hardware antigo.
+# Deve ser executado com privilégios de root.
+# =============================================================================
+
+# Cores para debug
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+log() { echo -e "${GREEN}[SpeedBoost]${NC} $1"; }
+
+log "Iniciando otimização de performance..."
+
+# 1. Otimização de CPU Governor
+# Define o governor para 'performance' para máxima velocidade.
+log "Configurando CPU Governor para 'performance'..."
+# Usamos o método direto via sysfs, que é mais universal que 'cpupower'
+for CPU_FREQ_PATH in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+    if [ -f "$CPU_FREQ_PATH" ]; then
+        echo "performance" > "$CPU_FREQ_PATH"
+    fi
+done
+
+# 2. Otimização do I/O Scheduler
+# Define o scheduler para 'deadline' (bom para SSDs e HDDs)
+log "Configurando I/O Scheduler para 'deadline'..."
+for SCHEDULER_PATH in /sys/block/*/queue/scheduler; do
+    if [ -f "$SCHEDULER_PATH" ]; then
+        # Verifica se 'deadline' é uma opção
+        if grep -q "deadline" "$SCHEDULER_PATH"; then
+            echo "deadline" > "$SCHEDULER_PATH"
+        else
+            log "Aviso: 'deadline' não suportado. Usando o padrão."
+        fi
+    fi
+done
+
+# 3. Otimização da Swappiness
+# Reduz a swappiness para 10, forçando o sistema a usar a RAM o máximo possível antes de usar o swap.
+log "Ajustando swappiness para 10..."
+echo 10 > /proc/sys/vm/swappiness
+
+# 4. Otimização do Cache de Memória (VFS Cache Pressure)
+# Reduz a pressão do cache VFS para 50 (padrão é 100), mantendo o cache de diretórios e inodes por mais tempo.
+log "Ajustando vfs_cache_pressure para 50..."
+echo 50 > /proc/sys/vm/vfs_cache_pressure
+
+# 5. Limpeza de Memória (Otimização imediata)
+log "Liberando cache de memória (drop_caches)..."
+sync
+echo 3 > /proc/sys/vm/drop_caches
+
+log "SpeedBoost concluído. O sistema está otimizado para performance."
+exit 0

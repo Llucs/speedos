@@ -1,0 +1,9 @@
+# /etc/logrotate.d/speedos
+/var/log/speedos-ai-monitor.log {
+    rotate 7
+    daily
+    compress
+    missingok
+    notifempty
+    create 0640 root adm
+}

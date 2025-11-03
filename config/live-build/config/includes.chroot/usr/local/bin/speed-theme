@@ -1,0 +1,38 @@
+#!/bin/bash
+# SpeedOS - speed-theme
+# Gerenciamento de temas visuais (Dark/Light).
+
+THEME=$1
+
+if [ "$THEME" == "dark" ]; then
+    echo "[SpeedTheme] Aplicando tema escuro (Arc-Dark + Papirus)..."
+    # Configuração GTK3/GTK4
+    gsettings set org.gnome.desktop.interface gtk-theme "Arc-Dark"
+    gsettings set org.gnome.desktop.interface icon-theme "Papirus"
+    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+    
+    # Configuração XFCE (xfconf-query) - Assume que o XFCE está instalado
+    xfconf-query -c xsettings -p /Net/ThemeName -s "Arc-Dark"
+    xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus"
+    
+    echo "[SpeedTheme] Tema escuro aplicado. Pode ser necessário reiniciar a sessão."
+
+elif [ "$THEME" == "light" ]; then
+    echo "[SpeedTheme] Aplicando tema claro (Arc + Papirus)..."
+    # Configuração GTK3/GTK4
+    gsettings set org.gnome.desktop.interface gtk-theme "Arc"
+    gsettings set org.gnome.desktop.interface icon-theme "Papirus"
+    gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
+    
+    # Configuração XFCE (xfconf-query) - Assume que o XFCE está instalado
+    xfconf-query -c xsettings -p /Net/ThemeName -s "Arc"
+    xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus"
+    
+    echo "[SpeedTheme] Tema claro aplicado. Pode ser necessário reiniciar a sessão."
+
+else
+    echo "Uso: speed-theme [dark|light]"
+    echo "Exemplo: speed-theme dark"
+fi
+
+exit 0

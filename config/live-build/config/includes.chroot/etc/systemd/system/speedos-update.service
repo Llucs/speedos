@@ -1,0 +1,11 @@
+[Unit]
+Description=SpeedOS Update Service
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/speed-update
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
