@@ -1,7 +1,7 @@
 name: Build SpeedOS ISO
 
 on:
-  workflow_dispatch:  # permite rodar manualmente pelo GitHub
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,18 +22,13 @@ jobs:
       - name: Build SpeedOS ISO
         run: |
           cd config/live-build
-          # Limpa tudo pra garantir que não use cache antigo (Ubuntu precise)
           sudo lb clean --purge
           sudo rm -rf cache/ chroot/ binary/ local/ .build/
-          
-          # Executa o script de configuração (usa Ubuntu 24.04 "noble")
-          sudo lb config
-          
-          # Inicia o build do sistema
+          sudo ./auto/config
           sudo lb build
 
       - name: Upload da ISO gerada
         uses: actions/upload-artifact@v4
         with:
           name: speedos-iso
-          path: config/live-build/*.iso
+          path: '**/*.iso'
