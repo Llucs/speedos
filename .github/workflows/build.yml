@@ -11,19 +11,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install live-build
+      - name: Instalar dependências
         run: |
           sudo apt update
           sudo apt install -y live-build debootstrap
 
-      - name: Build SpeedOS
+      - name: Tornar auto/config executável
+        run: chmod +x config/live-build/auto/config
+
+      - name: Build SpeedOS ISO
         run: |
           cd config/live-build
-          sudo lb clean
+          # Limpa tudo pra garantir que não use cache antigo (Ubuntu precise)
+          sudo lb clean --purge
+          sudo rm -rf cache/ chroot/ binary/ local/ .build/
+          
+          # Executa o script de configuração (usa Ubuntu 24.04 "noble")
           sudo lb config
+          
+          # Inicia o build do sistema
           sudo lb build
 
-      - name: Upload ISO
+      - name: Upload da ISO gerada
         uses: actions/upload-artifact@v4
         with:
           name: speedos-iso
