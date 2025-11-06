@@ -1,21 +1,21 @@
 #!/bin/bash
 set -e
 
-echo "[SpeedOS] Configurando build do Ubuntu 24.04 (noble)..."
+echo "[SpeedOS] Aplicando configuração para Ubuntu 24.04 (noble)..."
 
-lb config \
-    --mode ubuntu \
-    --distribution noble \
-    --architecture amd64 \
-    --bootappend-live "boot=live components username=speedos" \
-    --debian-installer live \
-    --binary-images iso-hybrid \
-    --archive-areas "main restricted universe multiverse" \
-    --mirror-bootstrap http://archive.ubuntu.com/ubuntu/ \
-    --mirror-chroot http://archive.ubuntu.com/ubuntu/ \
-    --mirror-binary http://archive.ubuntu.com/ubuntu/ \
-    --mirror-debian-installer http://archive.ubuntu.com/ubuntu/ \
-    --apt-indices false \
-    --memtest none
+# Define opções padrão sem chamar lb config
+LB_MODE="ubuntu"
+LB_DISTRIBUTION="noble"
+LB_ARCHITECTURE="amd64"
+LB_BOOTAPPEND_LIVE="boot=live components username=speedos"
+LB_DEBIAN_INSTALLER="live"
+LB_BINARY_IMAGES="iso-hybrid"
+LB_ARCHIVE_AREAS="main restricted universe multiverse"
+LB_MIRROR_BOOTSTRAP="http://archive.ubuntu.com/ubuntu/"
+LB_MIRROR_CHROOT="http://archive.ubuntu.com/ubuntu/"
+LB_MIRROR_BINARY="http://archive.ubuntu.com/ubuntu/"
+LB_MIRROR_DEBIAN_INSTALLER="http://archive.ubuntu.com/ubuntu/"
+LB_APT_INDICES="false"
+LB_MEMTEST="none"
 
-echo "[SpeedOS] Configuração concluída!"
+echo "[SpeedOS] Configuração carregada com sucesso!"
