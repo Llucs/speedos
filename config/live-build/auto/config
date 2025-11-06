@@ -1,0 +1,14 @@
+#!/bin/bash
+
+lb config \
+    --mode ubuntu \
+    --distribution noble \
+    --architecture amd64 \
+    --bootappend-live "boot=live components username=speedos" \
+    --debian-installer live \
+    --binary-images iso-hybrid \
+    --archive-areas "main restricted universe multiverse" \
+    --mirror-bootstrap http://archive.ubuntu.com/ubuntu/ \
+    --mirror-chroot http://archive.ubuntu.com/ubuntu/ \
+    --mirror-binary http://archive.ubuntu.com/ubuntu/ \
+    --mirror-debian-installer http://archive.ubuntu.com/ubuntu/
