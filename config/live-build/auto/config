@@ -16,8 +16,6 @@ lb config \
     --mirror-binary http://archive.ubuntu.com/ubuntu/ \
     --mirror-debian-installer http://archive.ubuntu.com/ubuntu/ \
     --apt-indices false \
-    --updates true \
-    --security true \
     --memtest none
 
 echo "[SpeedOS] Configuração concluída!"
