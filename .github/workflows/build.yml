@@ -1,0 +1,30 @@
+name: Build SpeedOS ISO
+
+on:
+  workflow_dispatch:  # permite rodar manualmente pelo GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install live-build
+        run: |
+          sudo apt update
+          sudo apt install -y live-build debootstrap
+
+      - name: Build SpeedOS
+        run: |
+          cd config/live-build
+          sudo lb clean
+          sudo lb config
+          sudo lb build
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: speedos-iso
+          path: config/live-build/*.iso
