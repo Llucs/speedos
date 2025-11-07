@@ -11,10 +11,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Instalar dependências
+      - name: Instalar dependências mais recentes (Ubuntu 24.04)
         run: |
           sudo apt update
-          sudo apt install -y live-build debootstrap
+          sudo apt install -y debootstrap ca-certificates gnupg
+          echo "deb http://archive.ubuntu.com/ubuntu noble main universe" | sudo tee /etc/apt/sources.list.d/noble.list
+          sudo apt update
+          sudo apt install -y live-build
 
       - name: Tornar auto/config executável
         run: chmod +x config/live-build/auto/config
