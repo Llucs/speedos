@@ -1,24 +1,68 @@
-- name: Instalar live-build atualizado
+name: Build SpeedOS ISO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (live-build moderno)
         run: |
           sudo apt update
-          sudo apt install -y software-properties-common
-          sudo add-apt-repository universe
-          sudo apt install -y live-build debootstrap
+          sudo apt install -y software-properties-common ca-certificates gnupg debootstrap
+          # Adiciona temporariamente o repositório do Ubuntu 24.04 (noble) para garantir live-build compatível
+          echo "deb [trusted=yes] http://archive.ubuntu.com/ubuntu noble main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/noble.list
+          sudo apt update
+          sudo apt install -y live-build
+
+      - name: Show live-build version (debug)
+        run: lb --version || sudo lb --version || true
+
+      - name: Make sure auto/config is NOT executed (safety)
+        run: |
+          # Se existir, torne o auto/config não-executável para evitar loops
+          if [ -f config/live-build/auto/config ]; then chmod -x config/live-build/auto/config || true; fi
+
+      - name: Configure build (explicit lb config)
+        run: |
+          cd config/live-build
+          # limpa configurações parciais locais antes de configurar
+          sudo lb clean --purge || true
+          sudo rm -rf cache/ chroot/ binary/ local/ .build/ || true
+
+          # Executa lb config explicitamente (força distribution noble)
+          sudo lb config \
+            --mode ubuntu \
+            --distribution noble \
+            --architecture amd64 \
+            --binary-images iso-hybrid \
+            --bootappend-live "boot=live components username=speedos" \
+            --debian-installer live \
+            --archive-areas "main restricted universe multiverse" \
+            --mirror-bootstrap "http://archive.ubuntu.com/ubuntu/" \
+            --mirror-chroot "http://archive.ubuntu.com/ubuntu/" \
+            --mirror-binary "http://archive.ubuntu.com/ubuntu/" \
+            --mirror-debian-installer "http://archive.ubuntu.com/ubuntu/" \
+            --apt-indices false \
+            --memtest none
+
+          # Opcional: ver a configuração gerada (útil para depurar)
+          ls -la config || true
+          grep -R "distribution" -n . || true
 
       - name: Build SpeedOS ISO
         run: |
           cd config/live-build
-          echo "[SpeedOS] Limpando cache e diretórios antigos..."
-          sudo lb clean --purge || true
-          sudo rm -rf cache/ chroot/ binary/ local/ .build/
-
-          echo "[SpeedOS] Forçando configuração para Ubuntu 24.04 (noble)..."
-          sudo ./auto/config --mode ubuntu --distribution noble --binary-images iso-hybrid --archive-areas "main restricted universe multiverse" --mirror-bootstrap http://archive.ubuntu.com/ubuntu/ --mirror-binary http://archive.ubuntu.com/ubuntu/
-
-          echo "[SpeedOS] Iniciando build..."
+          # construir (debug ajuda em logs)
           sudo lb build --debug
 
-      - name: Upload da ISO gerada
+      - name: Upload ISO artifact
         uses: actions/upload-artifact@v4
         with:
           name: speedos-iso
