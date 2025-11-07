@@ -12,31 +12,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies (live-build moderno)
+      - name: Preparar ambiente e instalar dependências
         run: |
           sudo apt update
           sudo apt install -y software-properties-common ca-certificates gnupg debootstrap
-          # Adiciona temporariamente o repositório do Ubuntu 24.04 (noble) para garantir live-build compatível
           echo "deb [trusted=yes] http://archive.ubuntu.com/ubuntu noble main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/noble.list
           sudo apt update
           sudo apt install -y live-build
 
-      - name: Show live-build version (debug)
-        run: lb --version || sudo lb --version || true
+      - name: Mostrar versão do live-build (debug)
+        run: lb --version || true
 
-      - name: Make sure auto/config is NOT executed (safety)
-        run: |
-          # Se existir, torne o auto/config não-executável para evitar loops
-          if [ -f config/live-build/auto/config ]; then chmod -x config/live-build/auto/config || true; fi
-
-      - name: Configure build (explicit lb config)
+      - name: Configurar build (usando lb config)
         run: |
           cd config/live-build
-          # limpa configurações parciais locais antes de configurar
           sudo lb clean --purge || true
           sudo rm -rf cache/ chroot/ binary/ local/ .build/ || true
 
-          # Executa lb config explicitamente (força distribution noble)
           sudo lb config \
             --mode ubuntu \
             --distribution noble \
@@ -51,17 +43,14 @@ jobs:
             --apt-indices false \
             --memtest none
 
-          # Opcional: ver a configuração gerada (útil para depurar)
-          ls -la config || true
-          grep -R "distribution" -n . || true
+          echo "Configuração concluída!"
 
-      - name: Build SpeedOS ISO
+      - name: Construir ISO SpeedOS
         run: |
           cd config/live-build
-          # construir (debug ajuda em logs)
           sudo lb build --debug
 
-      - name: Upload ISO artifact
+      - name: Fazer upload da ISO gerada
         uses: actions/upload-artifact@v4
         with:
           name: speedos-iso
