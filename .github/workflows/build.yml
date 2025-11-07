@@ -18,7 +18,7 @@ jobs:
           sudo apt install -y software-properties-common ca-certificates gnupg debootstrap
           echo "deb [trusted=yes] http://archive.ubuntu.com/ubuntu noble main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/noble.list
           sudo apt update
-          sudo apt install -y live-build
+          sudo apt install -y live-build isolinux syslinux syslinux-common
 
       - name: Mostrar versão do live-build (debug)
         run: lb --version || true
@@ -41,7 +41,11 @@ jobs:
             --mirror-binary "http://archive.ubuntu.com/ubuntu/" \
             --mirror-debian-installer "http://archive.ubuntu.com/ubuntu/" \
             --apt-indices false \
-            --memtest none
+            --memtest none \
+            --bootloader syslinux \
+            --syslinux-theme "" \
+            --iso-volume "SpeedOS $(date +%Y%m%d)" \
+            --iso-application "SpeedOS Live"
 
           echo "Configuração concluída!"
 
