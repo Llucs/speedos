@@ -1,5 +1,2 @@
-# Força desativar tema obsoleto
 LB_SYSLINUX_THEME=""
-
-# Garante que não instale pacotes inúteis
 LB_BOOTLOADER="syslinux"
