@@ -12,35 +12,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Preparar ambiente e instalar dependências
+      - name: Instalar dependências
         run: |
           sudo apt update -y
-          sudo apt install -y \
-            software-properties-common \
-            ca-certificates \
-            gnupg \
-            debootstrap \
-            live-build \
-            isolinux \
-            syslinux \
-            syslinux-common \
-            xorriso \
-            curl \
-            wget
+          sudo apt install -y live-build debootstrap syslinux syslinux-common xorriso
 
-      - name: Mostrar versão do live-build (debug)
-        run: lb --version || echo "live-build não encontrado"
-
-      - name: Limpar build anterior (forçado)
+      - name: Limpar build anterior
         run: |
           cd ${{ github.workspace }}
           sudo lb clean --purge || true
-          sudo rm -rf cache/ chroot/ binary/ .build/ .stage/ auto/ config/binary/ config/chroot/ || true
+          sudo rm -rf cache/ chroot/ binary/ .build/ .stage/ config/ || true
 
-      - name: Configurar build (NA RAIZ DO PROJETO)
+      - name: Copiar config/live-build → config/ (raiz)
         run: |
           cd ${{ github.workspace }}
+          sudo mkdir -p config
+          sudo cp -r config/live-build/config/* config/ || true
+          sudo cp -r config/live-build/auto/* auto/ || true 2>/dev/null || true
 
+      - name: Forçar tema vazio (sobrescreve tudo)
+        run: |
+          mkdir -p config/binary
+          echo 'LB_SYSLINUX_THEME=""' > config/binary/local
+          echo 'LB_BOOTLOADER="syslinux"' >> config/binary/local
+
+      - name: Rodar lb config (na raiz)
+        run: |
+          cd ${{ github.workspace }}
           sudo lb config \
             --mode ubuntu \
             --distribution noble \
@@ -48,49 +46,28 @@ jobs:
             --binary-images iso-hybrid \
             --bootappend-live "boot=live components username=speedos quiet splash" \
             --archive-areas "main restricted universe multiverse" \
-            --mirror-bootstrap "http://archive.ubuntu.com/ubuntu/" \
-            --mirror-chroot "http://archive.ubuntu.com/ubuntu/" \
-            --mirror-chroot-security "http://security.ubuntu.com/ubuntu/" \
-            --mirror-binary "http://archive.ubuntu.com/ubuntu/" \
-            --mirror-debian-installer "http://archive.ubuntu.com/ubuntu/" \
-            --apt-indices false \
-            --memtest none \
+            --mirror-bootstrap http://archive.ubuntu.com/ubuntu/ \
+            --mirror-chroot http://archive.ubuntu.com/ubuntu/ \
+            --mirror-chroot-security http://security.ubuntu.com/ubuntu/ \
             --bootloader syslinux \
-            --syslinux-theme "" \
             --iso-volume "SpeedOS $(date +%Y%m%d)" \
             --iso-application "SpeedOS Live" \
-            --iso-preparer "SpeedOS Team - https://github.com/Llucs/speedos" \
+            --iso-preparer "SpeedOS Team" \
             --checksums sha256 \
-            --compression xz
+            --compression xz \
+            --apt-indices false \
+            --memtest none
 
-          echo "Configuração aplicada com sucesso na raiz!"
-
-      - name: Copiar arquivos personalizados (includes, hooks, etc.)
-        run: 𝗖𝗢𝗣𝗜𝗔𝗥 𝗔𝗥𝗤𝗨𝗜𝗩𝗢𝗦
-          cd ${{ github.workspace }}
-          sudo mkdir -p config/binary config/chroot config/bootstrap config/common
-          sudo cp -r src config/ || true
-          sudo cp -r config/live-build/* config/ || true
-          echo "Arquivos personalizados copiados!"
-
-      - name: Construir ISO SpeedOS
+      - name: Construir ISO
         run: |
           cd ${{ github.workspace }}
           sudo lb build --debug 2>&1 | tee build.log
 
-      - name: Fazer upload da ISO gerada
+      - name: Upload ISO + log
         uses: actions/upload-artifact@v4
         with:
           name: speedos-iso
           path: |
             *.iso
-            *.iso.zsync
-            *.iso.sha256
+            *.sha256
             build.log
-          retention-days: 7
-
-      - name: Falha? Mostrar log completo
-        if: failure()
-        run: |
-          echo "BUILD FALHOU! Mostrando últimas 200 linhas do log:"
-          tail -n 200 build.log || true
