@@ -1,7 +1,7 @@
 name: Build SpeedOS ISO
 
 on:
-  workflow_dispatch:  # permite rodar manualmente pelo GitHub Actions
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,45 +11,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Instalar dependências mais recentes (Ubuntu 24.04)
+      - name: Instalar dependências (live-build atualizado)
         run: |
           sudo apt update
           sudo apt install -y debootstrap ca-certificates gnupg
-          echo "deb http://archive.ubuntu.com/ubuntu noble main universe" | sudo tee /etc/apt/sources.list.d/noble.list
+          echo "deb [trusted=yes] http://archive.ubuntu.com/ubuntu noble main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/noble.list
           sudo apt update
           sudo apt install -y live-build
 
       - name: Tornar auto/config executável
         run: chmod +x config/live-build/auto/config
 
-      - name: Configurar build SpeedOS
-        run: |
-          cd config/live-build
-          # Aplica as variáveis do script
-          sudo ./auto/config
-          
-          # Configura o live-build com base no Ubuntu 24.04 (noble)
-          sudo lb config \
-            --mode ubuntu \
-            --distribution noble \
-            --architecture amd64 \
-            --debian-installer live \
-            --binary-images iso-hybrid \
-            --archive-areas "main restricted universe multiverse" \
-            --bootappend-live "boot=live components username=speedos" \
-            --mirror-bootstrap http://archive.ubuntu.com/ubuntu/ \
-            --mirror-chroot http://archive.ubuntu.com/ubuntu/ \
-            --mirror-binary http://archive.ubuntu.com/ubuntu/ \
-            --mirror-debian-installer http://archive.ubuntu.com/ubuntu/
-
       - name: Build SpeedOS ISO
         run: |
           cd config/live-build
-          # Limpa cache e chroot antigos
           sudo lb clean --purge
           sudo rm -rf cache/ chroot/ binary/ local/ .build/
-          
-          # Inicia o build
+          sudo ./auto/config
           sudo lb build
 
       - name: Upload da ISO gerada
