@@ -61,17 +61,17 @@ jobs:
             --iso-application "SpeedOS Live" \
             --iso-preparer "SpeedOS Team - https://github.com/Llucs/speedos" \
             --checksums sha256 \
-            --compression xz \
-            --debootstrap-options "--keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg"
+            --compression xz
 
           echo "Configuração aplicada com sucesso na raiz!"
 
       - name: Copiar arquivos personalizados (includes, hooks, etc.)
-        run: |
+        run: 𝗖𝗢𝗣𝗜𝗔𝗥 𝗔𝗥𝗤𝗨𝗜𝗩𝗢𝗦
           cd ${{ github.workspace }}
-          # Garante que config/ tenha tudo
-          [ -d config ] && echo "Pasta config/ encontrada" || echo "ERRO: pasta config/ ausente!"
-          sudo cp -r config/* . || true
+          sudo mkdir -p config/binary config/chroot config/bootstrap config/common
+          sudo cp -r src config/ || true
+          sudo cp -r config/live-build/* config/ || true
+          echo "Arquivos personalizados copiados!"
 
       - name: Construir ISO SpeedOS
         run: |
