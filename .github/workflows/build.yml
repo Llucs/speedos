@@ -43,7 +43,6 @@ jobs:
             --architecture amd64 \
             --binary-images iso-hybrid \
             --bootappend-live "boot=live components username=speedos" \
-            --debian-installer live \
             --archive-areas "main restricted universe multiverse" \
             --mirror-bootstrap "http://archive.ubuntu.com/ubuntu/" \
             --mirror-chroot "http://archive.ubuntu.com/ubuntu/" \
