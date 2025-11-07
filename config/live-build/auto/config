@@ -2,7 +2,7 @@
 
 echo "[SpeedOS] Aplicando configuração para Ubuntu 24.04 (noble)..."
 
-# Define variáveis padrão sem rodar lb config de novo
+# Apenas define variáveis, sem chamar lb config
 LB_MODE="ubuntu"
 LB_DISTRIBUTION="noble"
 LB_ARCHITECTURE="amd64"
