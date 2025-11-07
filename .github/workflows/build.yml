@@ -14,30 +14,43 @@ jobs:
 
       - name: Preparar ambiente e instalar dependências
         run: |
-          sudo apt update
-          sudo apt install -y software-properties-common ca-certificates gnupg debootstrap
-          echo "deb [trusted=yes] http://archive.ubuntu.com/ubuntu noble main universe multiverse restricted" | sudo tee /etc/apt/sources.list.d/noble.list
-          sudo apt update
-          sudo apt install -y live-build isolinux syslinux syslinux-common
+          sudo apt update -y
+          sudo apt install -y \
+            software-properties-common \
+            ca-certificates \
+            gnupg \
+            debootstrap \
+            live-build \
+            isolinux \
+            syslinux \
+            syslinux-common \
+            xorriso \
+            curl \
+            wget
 
       - name: Mostrar versão do live-build (debug)
-        run: lb --version || true
+        run: lb --version || echo "live-build não encontrado"
 
-      - name: Configurar build (usando lb config)
+      - name: Limpar build anterior (forçado)
         run: |
-          cd config/live-build
+          cd ${{ github.workspace }}
           sudo lb clean --purge || true
-          sudo rm -rf cache/ chroot/ binary/ local/ .build/ || true
+          sudo rm -rf cache/ chroot/ binary/ .build/ .stage/ auto/ config/binary/ config/chroot/ || true
+
+      - name: Configurar build (NA RAIZ DO PROJETO)
+        run: |
+          cd ${{ github.workspace }}
 
           sudo lb config \
             --mode ubuntu \
             --distribution noble \
             --architecture amd64 \
             --binary-images iso-hybrid \
-            --bootappend-live "boot=live components username=speedos" \
+            --bootappend-live "boot=live components username=speedos quiet splash" \
             --archive-areas "main restricted universe multiverse" \
             --mirror-bootstrap "http://archive.ubuntu.com/ubuntu/" \
             --mirror-chroot "http://archive.ubuntu.com/ubuntu/" \
+            --mirror-chroot-security "http://security.ubuntu.com/ubuntu/" \
             --mirror-binary "http://archive.ubuntu.com/ubuntu/" \
             --mirror-debian-installer "http://archive.ubuntu.com/ubuntu/" \
             --apt-indices false \
@@ -45,17 +58,39 @@ jobs:
             --bootloader syslinux \
             --syslinux-theme "" \
             --iso-volume "SpeedOS $(date +%Y%m%d)" \
-            --iso-application "SpeedOS Live"
+            --iso-application "SpeedOS Live" \
+            --iso-preparer "SpeedOS Team - https://github.com/Llucs/speedos" \
+            --checksums sha256 \
+            --compression xz \
+            --debootstrap-options "--keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg"
 
-          echo "Configuração concluída!"
+          echo "Configuração aplicada com sucesso na raiz!"
+
+      - name: Copiar arquivos personalizados (includes, hooks, etc.)
+        run: |
+          cd ${{ github.workspace }}
+          # Garante que config/ tenha tudo
+          [ -d config ] && echo "Pasta config/ encontrada" || echo "ERRO: pasta config/ ausente!"
+          sudo cp -r config/* . || true
 
       - name: Construir ISO SpeedOS
         run: |
-          cd config/live-build
-          sudo lb build --debug
+          cd ${{ github.workspace }}
+          sudo lb build --debug 2>&1 | tee build.log
 
       - name: Fazer upload da ISO gerada
         uses: actions/upload-artifact@v4
         with:
           name: speedos-iso
-          path: '**/*.iso'
+          path: |
+            *.iso
+            *.iso.zsync
+            *.iso.sha256
+            build.log
+          retention-days: 7
+
+      - name: Falha? Mostrar log completo
+        if: failure()
+        run: |
+          echo "BUILD FALHOU! Mostrando últimas 200 linhas do log:"
+          tail -n 200 build.log || true
