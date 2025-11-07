@@ -1,18 +1,48 @@
 #!/bin/bash
+# Auto/config para SpeedOS
+# Compatível com Ubuntu 24.04 (noble) e live-build 3.0+
 
-echo "[SpeedOS] Aplicando configuração para Ubuntu 24.04 (noble)..."
-
-# Apenas define variáveis, sem chamar lb config
-LB_MODE="ubuntu"
+# Definir arquitetura e distribuição
 LB_DISTRIBUTION="noble"
 LB_ARCHITECTURE="amd64"
-LB_BINARY_IMAGES="iso-hybrid"
-LB_DEBIAN_INSTALLER="live"
-LB_ARCHIVE_AREAS="main restricted universe multiverse"
+
+# Tipo de build
+LB_BINARY_IMAGES="iso-hybrid"        # ISO híbrida (boot USB + CD)
 LB_BOOTAPPEND_LIVE="boot=live components username=speedos"
+
+# Seções de pacotes
+LB_ARCHIVE_AREAS="main restricted universe multiverse"
+
+# Mirrors oficiais do Ubuntu
 LB_MIRROR_BOOTSTRAP="http://archive.ubuntu.com/ubuntu/"
-LB_MIRROR_CHROOT="http://archive.ubuntu.com/ubuntu/"
-LB_MIRROR_BINARY="http://archive.ubuntu.com/ubuntu/"
-LB_MIRROR_DEBIAN_INSTALLER="http://archive.ubuntu.com/ubuntu/"
+LB_MIRROR_CHROOT="$LB_MIRROR_BOOTSTRAP"
+LB_MIRROR_BINARY="$LB_MIRROR_BOOTSTRAP"
+LB_MIRROR_DEBIAN_INSTALLER="$LB_MIRROR_BOOTSTRAP"
+
+# Desativar memtest e índices antigos
+LB_MEMTEST="none"
+LB_APT_INDICES="false"
+
+# Hooks e scripts extras podem ser adicionados aqui
+# Por exemplo, pós-instalador ou personalizações do ISO
+# LB_HOOKS_POSTINSTALL="config/hooks/postinstall/"
+
+# Mensagem de log
+echo "[SpeedOS] Aplicando configuração para Ubuntu $LB_DISTRIBUTION..."
+
+# Aplicar configuração ao live-build
+lb config \
+  --mode ubuntu \
+  --distribution "$LB_DISTRIBUTION" \
+  --architecture "$LB_ARCHITECTURE" \
+  --binary-images "$LB_BINARY_IMAGES" \
+  --bootappend-live "$LB_BOOTAPPEND_LIVE" \
+  --archive-areas "$LB_ARCHIVE_AREAS" \
+  --mirror-bootstrap "$LB_MIRROR_BOOTSTRAP" \
+  --mirror-chroot "$LB_MIRROR_CHROOT" \
+  --mirror-binary "$LB_MIRROR_BINARY" \
+  --mirror-debian-installer "$LB_MIRROR_DEBIAN_INSTALLER" \
+  --memtest "$LB_MEMTEST" \
+  --apt-indices "$LB_APT_INDICES"
 
 echo "[SpeedOS] Configuração carregada com sucesso!"
