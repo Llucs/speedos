@@ -66,3 +66,24 @@ jobs:
         run: |
           echo "FALHOU! Últimas 200 linhas:"
           tail -n 200 build.log
+
+      - name: Rodar lb config (na raiz)
+        run: |
+          cd ${{ github.workspace }}
+          sudo lb config \
+            # ... (todas as suas outras flags) ...
+            --bootloader syslinux \
+            --syslinux-theme "" \
+            --iso-volume "SpeedOS $(date +%Y%m%d)" \
+            # ... (resto das flags) ...
+
+# --- ADICIONE ESTE PASSO AQUI ---
+      - name: Forçar desativação do syslinux theme
+        run: |
+          echo "LB_SYSLINUX_THEME=''" | sudo tee -a ${{ github.workspace }}/config/binary
+
+# --- O PASSO DE BUILD VEM DEPOIS ---
+      - name: Construir ISO
+        run: |
+          cd ${{ github.workspace }}
+          sudo lb build --debug 2>&1 | tee build.log
