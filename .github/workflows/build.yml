@@ -21,21 +21,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           sudo lb clean --purge || true
-          sudo rm -rf cache/ chroot/ binary/ .build/ .stage/ config/ auto/ || true
-
-      - name: Copiar config/live-build → config/ (raiz)
-        run: |
-          cd ${{ github.workspace }}
-          sudo mkdir -p config
-          sudo cp -r config/live-build/config/* config/ || true
-          sudo cp -r config/live-build/auto/* auto/ || true 2>/dev/null || true
-
-      - name: Forçar tema vazio com sudo
-        run: |
-          cd ${{ github.workspace }}
-          sudo mkdir -p config/binary
-          echo 'LB_SYSLINUX_THEME=""' | sudo tee config/binary/local > /dev/null
-          echo 'LB_BOOTLOADER="syslinux"' | sudo tee -a config/binary/local > /dev/null
+          sudo rm -rf cache/ chroot/ binary/ .build/ .stage/ config/ auto/ || t
 
       - name: Rodar lb config (na raiz)
         run: |
@@ -51,6 +37,7 @@ jobs:
             --mirror-chroot http://archive.ubuntu.com/ubuntu/ \
             --mirror-chroot-security http://security.ubuntu.com/ubuntu/ \
             --bootloader syslinux \
+            --syslinux-theme "" \
             --iso-volume "SpeedOS $(date +%Y%m%d)" \
             --iso-application "SpeedOS Live" \
             --iso-preparer "SpeedOS Team" \
