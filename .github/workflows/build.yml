@@ -15,13 +15,12 @@ jobs:
       - name: Instalar dependências
         run: |
           sudo apt update -y
-          sudo apt install -y live-build debootstrap syslinux syslinux-common xorriso
+          sudo apt install -y live-build debootstrap syslinux syslinux-common xorriso squashfs-tools
 
       - name: Limpar build anterior
         run: |
           cd ${{ github.workspace }}
           sudo lb clean --purge || true
-          # Corrigido o typo "|| t" para "|| true"
           sudo rm -rf cache/ chroot/ binary/ .build/ .stage/ config/ auto/ || true
 
       - name: Rodar lb config (na raiz)
@@ -47,17 +46,19 @@ jobs:
             --apt-indices false \
             --memtest none
 
-      # --- CORREÇÃO DO ERRO DE BUILD ---
-      # Este passo deve vir DEPOIS do lb config e ANTES do lb build
-      - name: Forçar desativação do syslinux theme
+      - name: Corrigir Configuração do Syslinux (Método Robusto)
         run: |
-          # Sobrescreve a configuração que causa o erro de pacote inexistente
-          echo "LB_SYSLINUX_THEME=''" | sudo tee -a ${{ github.workspace }}/config/binary
+          cd ${{ github.workspace }}
+          # 1. Substitui a linha que define o tema, forçando vazio
+          sudo sed -i 's/^LB_SYSLINUX_THEME=.*/LB_SYSLINUX_THEME=""/' config/binary
+          # 2. Verifica se a mudança foi aplicada (para debug)
+          grep "LB_SYSLINUX_THEME" config/binary
 
       - name: Construir ISO
         run: |
           cd ${{ github.workspace }}
-          sudo lb build --debug 2>&1 | tee build.log
+          # Passamos a variável vazia também no ambiente do sudo para garantir
+          sudo LB_SYSLINUX_THEME="" lb build --debug 2>&1 | tee build.log
 
       - name: Upload ISO + log
         uses: actions/upload-artifact@v4
