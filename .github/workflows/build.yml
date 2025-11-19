@@ -14,34 +14,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Docker and build SpeedOS
+    - name: Install required packages
       run: |
-        docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
-          set -e
+        sudo apt update
+        sudo apt install -y python3-pip fakeroot squashfs-tools xorriso dosfstools mtools arch-install-scripts
 
-          pacman -Sy --noconfirm arch-install-scripts archiso squashfs-tools xorriso dosfstools mtools git sudo
+        # Instalar pacman + repositórios Arch no Ubuntu
+        sudo pip install pacman-package-manager
+        sudo pacman --sync --refresh --noconfirm archiso
 
-          mkdir -p /workspace/build_speedos
+    - name: Prepare build folder
+      run: |
+        mkdir -p build_speedos
 
-          # Copia estrutura essencial do Archiso
-          cp -R /workspace/airootfs /workspace/build_speedos/
-          cp /workspace/build.sh /workspace/build_speedos/
-          cp /workspace/packages.x86_64 /workspace/build_speedos/
-          cp /workspace/pacman.conf /workspace/build_speedos/
-          cp /workspace/profiledef.sh /workspace/build_speedos/
+        cp -R airootfs build_speedos/
+        cp -R syslinux build_speedos/
+        cp -R efiboot build_speedos/
 
-          # >>> ADICIONE ISSO <<<
-          # Copia bootloaders (OBRIGATÓRIO)
-          cp -R /workspace/syslinux /workspace/build_speedos/ || true
-          cp -R /workspace/efiboot /workspace/build_speedos/ || true
-          # >>> FIM <<<
+        cp build.sh build_speedos/
+        cp pacman.conf build_speedos/
+        cp packages.x86_64 build_speedos/
+        cp profiledef.sh build_speedos/
 
-          chmod +x /workspace/build_speedos/build.sh
+        chmod +x build_speedos/build.sh
 
-          cd /workspace/build_speedos
-          ./build.sh
-        "
-      shell: bash -e {0}
+    - name: Build ISO
+      run: |
+        cd build_speedos
+        sudo mkarchiso -v -w work -o out .
 
     - name: Upload ISO artifact
       uses: actions/upload-artifact@v4
