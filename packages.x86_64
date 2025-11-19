@@ -1,8 +1,10 @@
-# Pacotes base e essenciais para um sistema Arch Live
+# Base
 base
 linux-lqx
 linux-firmware
 networkmanager
+network-manager-applet
+nm-connection-editor
 nano
 sudo
 bash-completion
@@ -10,6 +12,11 @@ bash-completion
 # Xorg
 xorg-server
 xorg-xinit
+mesa
+mesa-demos
+xf86-video-amdgpu
+xf86-video-intel
+xf86-video-vesa
 
 # XFCE
 xfce4
@@ -26,19 +33,29 @@ tela-icon-theme
 arc-gtk-theme
 papirus-icon-theme
 
+# Som
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+pavucontrol
+
 # Utilidades
 firefox
 btop
 neofetch
 thunar-archive-plugin
-pavucontrol
 gnome-disk-utility
 htop
 git
 
-# Ferramentas do archiso
+# ArchISO tools
 mkinitcpio
 arch-install-scripts
 archiso
 syslinux
 memtest86+
+grub
+efibootmgr
+openssh
+systemd-ukify
