@@ -1,6 +1,9 @@
 name: Build SpeedOS ISO
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -8,37 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Setup Arch Linux container and build ISO
-      run: |
-        docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
-          set -e
+      - name: Build SpeedOS ISO
+        run: |
+          docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
+            set -e
 
-          # Atualiza pacman e instala dependências
-          pacman -Sy --noconfirm arch-install-scripts squashfs-tools xorriso dosfstools mtools git
+            # Atualiza pacman e instala dependências
+            pacman -Sy --noconfirm arch-install-scripts archiso squashfs-tools xorriso dosfstools mtools git
 
-          # Cria pasta de build
-          mkdir -p /workspace/build_speedos
+            # Cria pasta de build
+            mkdir -p /workspace/build_speedos
 
-          # Copia apenas os arquivos necessários do repo para build
-          cp -R /workspace/airootfs /workspace/build_speedos/
-          cp /workspace/build.sh /workspace/build_speedos/
-          cp /workspace/packages.x86_64 /workspace/build_speedos/
-          cp /workspace/pacman.conf /workspace/build_speedos/
-          cp /workspace/profiledef.sh /workspace/build_speedos/
+            # Copia apenas os arquivos necessários do repo para build
+            cp -R /workspace/airootfs /workspace/build_speedos/
+            cp /workspace/build.sh /workspace/build_speedos/
+            cp /workspace/packages.x86_64 /workspace/build_speedos/
+            cp /workspace/pacman.conf /workspace/build_speedos/
+            cp /workspace/profiledef.sh /workspace/build_speedos/
 
-          # Dá permissão de execução para o build.sh
-          chmod +x /workspace/build_speedos/build.sh
+            # Dá permissão de execução para o build.sh
+            chmod +x /workspace/build_speedos/build.sh
 
-          # Vai para a pasta e executa o build
-          cd /workspace/build_speedos
-          ./build.sh
-        "
-
-    - name: Upload ISO artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: speedos-iso
-        path: ./build_speedos/out/*.iso
+            # Vai para a pasta e executa o build
+            cd /workspace/build_speedos
+            ./build.sh
+          "
+        shell: /usr/bin/bash -e
