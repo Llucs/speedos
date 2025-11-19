@@ -38,3 +38,7 @@ git
 
 # Ferramentas do archiso
 mkinitcpio
+arch-install-scripts
+archiso
+syslinux
+memtest86+
