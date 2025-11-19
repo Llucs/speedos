@@ -42,7 +42,7 @@ jobs:
       shell: bash -e {0}
 
     - name: Upload ISO artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: speedos-iso
         path: build_speedos/out/
