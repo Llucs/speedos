@@ -29,7 +29,6 @@ mesa-demos
 xf86-video-amdgpu
 xf86-video-intel
 xf86-video-vesa
-xf86-video-vmware
 xorg-server
 xorg-xinit
 
@@ -72,17 +71,15 @@ htop
 
 # --- Customização (Do seu Repo Local) ---
 sweet-gtk-theme
-sweet-theme-git
 tela-icon-theme
 papirus-icon-theme
 
 # --- Instalador (Calamares e Dependências) ---
-calamares-git
-calamares-extensions-git
+calamares
+polkit-kde-agent  <-- Preferido para Calamares (Qt)
 kpmcore
 ckbcomp
-libsdeal
-polkit-gnome
+# Removido: polkit-gnome (Para evitar conflitos com polkit-kde-agent)
 qt5-base
 qt5-svg
 qt5-declarative
