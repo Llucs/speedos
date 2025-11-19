@@ -1,98 +1,50 @@
 name: Build SpeedOS ISO
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Show repo root (debug)
-        run: |
-          echo "=== REPO ROOT ==="
-          ls -la
-          echo "=== TREE (shallow) ==="
-          find . -maxdepth 3 -type d -print -o -type f -print | sed -n '1,200p'
-
-      - name: Prepare build folder (debug + safety)
-        run: |
+    - name: Set up Docker and build SpeedOS
+      run: |
+        docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
           set -e
-          WORK=/workspace/build_speedos
-          rm -rf "$WORK"
-          mkdir -p "$WORK"
-          echo "Created build folder: $WORK"
-          echo "Checking for required directories in repo:"
-          for d in airootfs build.sh packages.x86_64 pacman.conf profiledef.sh syslinux efiboot; do
-            if [ -e "$GITHUB_WORKSPACE/$d" ]; then
-              echo "  OK: $d exists"
-            else
-              echo "  MISSING: $d"
-            fi
-          done
-        shell: bash
 
-      - name: Build inside Arch container
-        run: |
-          docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
-            set -e
-            echo 'Updating pacman and installing required packages...'
-            pacman -Sy --noconfirm arch-install-scripts archiso squashfs-tools xorriso dosfstools mtools git sudo
+          pacman -Sy --noconfirm arch-install-scripts archiso squashfs-tools xorriso dosfstools mtools git sudo
 
-            # prepare workspace (inside container)
-            BUILD=/workspace/build_speedos
-            rm -rf \"\$BUILD\"
-            mkdir -p \"\$BUILD\"
+          mkdir -p /workspace/build_speedos
 
-            # copy required items safely (only if exist)
-            cp -a /workspace/airootfs \"\$BUILD/\" || true
-            [ -f /workspace/build.sh ] && cp -a /workspace/build.sh \"\$BUILD/\" || true
-            [ -f /workspace/packages.x86_64 ] && cp -a /workspace/packages.x86_64 \"\$BUILD/\" || true
-            [ -f /workspace/pacman.conf ] && cp -a /workspace/pacman.conf \"\$BUILD/\" || true
-            [ -f /workspace/profiledef.sh ] && cp -a /workspace/profiledef.sh \"\$BUILD/\" || true
+          # Copia estrutura essencial do Archiso
+          cp -R /workspace/airootfs /workspace/build_speedos/
+          cp /workspace/build.sh /workspace/build_speedos/
+          cp /workspace/packages.x86_64 /workspace/build_speedos/
+          cp /workspace/pacman.conf /workspace/build_speedos/
+          cp /workspace/profiledef.sh /workspace/build_speedos/
 
-            # copy boot config directories if present
-            if [ -d /workspace/syslinux ]; then
-              cp -a /workspace/syslinux \"\$BUILD/syslinux\"
-              echo 'Copied syslinux/'
-            else
-              echo 'syslinux/ not present in repo'
-            fi
+          # >>> ADICIONE ISSO <<<
+          # Copia bootloaders (OBRIGATÓRIO)
+          cp -R /workspace/syslinux /workspace/build_speedos/ || true
+          cp -R /workspace/efiboot /workspace/build_speedos/ || true
+          # >>> FIM <<<
 
-            if [ -d /workspace/efiboot ]; then
-              cp -a /workspace/efiboot \"\$BUILD/efiboot\"
-              echo 'Copied efiboot/'
-            else
-              echo 'efiboot/ not present in repo'
-            fi
+          chmod +x /workspace/build_speedos/build.sh
 
-            # show what's inside build dir (debug)
-            echo '=== /workspace/build_speedos content ==='
-            ls -la \"\$BUILD\"
-            find \"\$BUILD\" -maxdepth 3 -print | sed -n '1,200p'
+          cd /workspace/build_speedos
+          ./build.sh
+        "
+      shell: bash -e {0}
 
-            # ensure build.sh executable and run it
-            if [ -f \"\$BUILD/build.sh\" ]; then
-              chmod +x \"\$BUILD/build.sh\"
-              cd \"\$BUILD\"
-              echo 'Running build.sh...'
-              ./build.sh
-            else
-              echo 'ERROR: build.sh not found in build folder'
-              exit 2
-            fi
-          "
-        shell: bash -e {0}
-
-      - name: Upload ISO artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: speedos-iso
-          path: build_speedos/out/*.iso
+    - name: Upload ISO artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: speedos-iso
+        path: build_speedos/out/
