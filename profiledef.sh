@@ -15,4 +15,6 @@ pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
 airootfs_image_tool_options=('-comp' 'xz' '-b' '1M' '-Xdict-size' '1M')
 file_permissions=(
+  ["/root/customize_airootfs.sh"]="0:0:755"
+
 )
