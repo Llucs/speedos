@@ -6,7 +6,10 @@ iso_application="SpeedOS Live ISO"
 iso_version="1.0"
 install_dir="arch"
 buildmodes=('iso')
-bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito' 'uefi-x64.systemd-boot')
+
+# Boot modes CORRETOS
+bootmodes=('bios.syslinux' 'uefi.systemd-boot')
+
 arch="x86_64"
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
