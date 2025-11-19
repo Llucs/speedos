@@ -1,18 +1,34 @@
 #!/bin/bash
 set -e
 
-# Habilita serviços
-systemctl enable NetworkManager.service
-systemctl enable lightdm.service
+echo "[SpeedOS] Iniciando customizações do sistema..."
 
-# Gera o initramfs do kernel personalizado
-echo "[SpeedOS] Gerando initramfs do linux-lqx..."
-mkinitcpio -p linux-lqx
+# -----------------------------------------------
+# 1. Habilitar Serviços do Sistema
+# -----------------------------------------------
+# Habilita serviços essenciais. O '|| true' evita que o build pare se o serviço não existir.
+systemctl enable NetworkManager.service || true
+systemctl enable lightdm.service || true
 
-# Configurações XFCE
-mkdir -p /root/.config/xfce4/xfconf/xfce-perchannel-xml/
+if [ -e /usr/lib/systemd/system/zram-generator.service ]; then
+    systemctl enable zram-generator.service || true
+fi
 
-cat <<EOF > /root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+if [ -e /usr/lib/systemd/system/haveged.service ]; then
+    systemctl enable haveged.service || true
+fi
+
+# -----------------------------------------------
+# 2. Configurações do XFCE (Aplicadas ao /etc/skel)
+# -----------------------------------------------
+# É mais seguro aplicar direto no skel para novos usuários
+TARGET_DIR="/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml"
+mkdir -p "$TARGET_DIR"
+
+echo "[SpeedOS] Aplicando tema Sweet-Dark e ícones Tela-circle..."
+
+# Tema e Ícones
+cat <<EOF > "$TARGET_DIR/xsettings.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
   <property name="Net" type="empty">
@@ -22,7 +38,8 @@ cat <<EOF > /root/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 </channel>
 EOF
 
-cat <<EOF > /root/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+# Tema do Gerenciador de Janelas
+cat <<EOF > "$TARGET_DIR/xfwm4.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfwm4" version="1.0">
   <property name="general" type="empty">
@@ -31,7 +48,8 @@ cat <<EOF > /root/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 </channel>
 EOF
 
-cat <<EOF > /root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
+# Wallpaper
+cat <<EOF > "$TARGET_DIR/xfce4-desktop.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-desktop" version="1.0">
   <property name="backdrop" type="empty">
@@ -48,8 +66,8 @@ cat <<EOF > /root/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 </channel>
 EOF
 
-# Copia configs para futuros usuários
-mkdir -p /etc/skel/.config
-cp -r /root/.config/xfce4 /etc/skel/.config/
+# Copiar também para o root (caso logue como root na live)
+mkdir -p /root/.config
+cp -r /etc/skel/.config/xfce4 /root/.config/
 
-echo "SpeedOS airootfs customizado com sucesso!"
+echo "[✔] SpeedOS airootfs customizado com sucesso!"
