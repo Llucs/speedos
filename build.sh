@@ -1,86 +1,75 @@
 #!/bin/bash
 set -e
 
-PROFILE_DIR="$(pwd)"
+# Diretórios
+WORK_DIR="$(pwd)"
+REPO_DIR="$WORK_DIR/local_repo"
+PACMAN_CONF="$WORK_DIR/pacman.conf"
 
-echo "[*] Limpando build anterior…"
-rm -rf work out
+# Limpeza inicial
+echo "[*] Limpando builds anteriores..."
+rm -rf work out "$REPO_DIR"
+mkdir -p "$REPO_DIR"
 
-echo "[*] Instalando dependências base…"
-sudo pacman -Syu --noconfirm base-devel git wget
+# Instalar dependências para compilar (no host)
+sudo pacman -Syu --noconfirm base-devel git wget archiso
 
-# -----------------------------
-# Clonar e instalar o kernel Liquorix
-# -----------------------------
-if [ ! -d "linux-lqx" ]; then
-    git clone https://aur.archlinux.org/linux-lqx.git
+# Função para compilar pacote e mover para o repo local
+build_to_repo() {
+    PKG_NAME=$1
+    echo "------------------------------------------------"
+    echo "[*] Preparando pacote: $PKG_NAME"
+    echo "------------------------------------------------"
+    
+    if [ -d "$PKG_NAME" ]; then
+        rm -rf "$PKG_NAME"
+    fi
+    
+    # Clona do AUR (funciona para kernel-lqx, temas e calamares-git)
+    git clone "https://aur.archlinux.org/$PKG_NAME.git"
+    
+    cd "$PKG_NAME"
+    # Compila sem instalar (-s: deps, -c: clean, --noconfirm)
+    makepkg -s -c --noconfirm
+    
+    # Move o pacote compilado para o repo local
+    mv *.pkg.tar.zst "$REPO_DIR/"
+    cd ..
+    rm -rf "$PKG_NAME"
+}
+
+# 1. Compilar Kernel LQX
+build_to_repo "linux-lqx"
+build_to_repo "linux-lqx-headers"
+
+# 2. Compilar Temas e Ícones (Usando versões AUR/Git para facilitar)
+build_to_repo "sweet-gtk-theme"
+build_to_repo "sweet-theme-git" # Se preferir o git
+build_to_repo "arc-gtk-theme"   # Versão AUR ou oficial
+build_to_repo "tela-icon-theme"
+
+# 3. Compilar Calamares (Usar o AUR é muito mais seguro que compilar raw source)
+build_to_repo "calamares-git"
+build_to_repo "calamares-extensions-git" # Se existir no AUR, senão remova
+
+# 4. Criar a base de dados do repositório
+echo "[*] Gerando base de dados do pacman..."
+repo-add "$REPO_DIR/speedos_repo.db.tar.gz" "$REPO_DIR"/*.pkg.tar.zst
+
+# 5. Injetar o repositório no pacman.conf
+# Isso garante que o mkarchiso ache os pacotes que acabamos de criar
+if ! grep -q "\[speedos_repo\]" "$PACMAN_CONF"; then
+    echo "[*] Adicionando repo ao pacman.conf..."
+    cat <<EOT >> "$PACMAN_CONF"
+
+[speedos_repo]
+SigLevel = Optional TrustAll
+Server = file://$REPO_DIR
+EOT
 fi
-cd linux-lqx
-makepkg -si --noconfirm
-cd ..
 
-# -----------------------------
-# Clonar e instalar pacotes AUR adicionais
-# -----------------------------
-AUR_PKGS=(preload sweet-gtk-theme sweet-gtk-theme-dark sweet-theme-git)
-
-for pkg in "${AUR_PKGS[@]}"; do
-  if [ ! -d "$pkg" ]; then
-    git clone "https://aur.archlinux.org/${pkg}.git"
-  fi
-  cd "$pkg"
-  makepkg -si --noconfirm
-  cd ..
-done
-
-# -----------------------------
-# Instalar pacotes do GitHub (Arc, Tela, Calamares)
-# -----------------------------
-
-# Arc GTK Theme
-if [ ! -d "arc-gtk-theme" ]; then
-    git clone https://github.com/horst3180/arc-theme.git arc-gtk-theme
-fi
-cd arc-gtk-theme
-./autogen.sh --prefix=/usr
-make
-sudo make install
-cd ..
-
-# Tela Icon Theme
-if [ ! -d "tela-icon-theme" ]; then
-    git clone https://github.com/vinceliuice/Tela-icon-theme.git
-fi
-cd Tela-icon-theme
-./install.sh
-cd ..
-
-# Calamares + Extensions
-if [ ! -d "calamares" ]; then
-    git clone https://github.com/calamares/calamares.git
-fi
-cd calamares
-mkdir -p build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-make -j$(nproc)
-sudo make install
-cd ../..
-
-if [ ! -d "calamares-extensions" ]; then
-    git clone https://github.com/calamares/calamares-extensions.git
-fi
-cd calamares-extensions
-mkdir -p build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-make -j$(nproc)
-sudo make install
-cd ../..
-
-# -----------------------------
-# Iniciar build da ISO
-# -----------------------------
-echo "[*] Iniciando build da SpeedOS…"
-mkarchiso -v -w work -o out "$PROFILE_DIR"
+# 6. Iniciar build da ISO
+echo "[*] Iniciando build da SpeedOS..."
+mkarchiso -v -w work -o out "$WORK_DIR"
 
 echo "[✔] ISO compilada com sucesso!"
-echo "Arquivo gerado em: out/"
