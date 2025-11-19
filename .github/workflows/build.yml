@@ -16,8 +16,8 @@ jobs:
         docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
           set -e
           pacman -Sy --noconfirm arch-install-scripts squashfs-tools xorriso dosfstools mtools git &&
-          mkdir -p /workspace/out &&
-          cp -R /workspace/speedos_archiso /workspace/build_speedos &&
+          mkdir -p /workspace/build_speedos/out &&
+          cp -R /workspace/* /workspace/build_speedos &&
           cd /workspace/build_speedos &&
           ./build.sh
         "
