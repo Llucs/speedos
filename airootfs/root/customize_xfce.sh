@@ -1,14 +1,17 @@
 #!/bin/bash
 
-# Diretório de configuração do XFCE
+# Diretório de configuração padrão dos usuários
 XFCE_CONFIG_DIR="/etc/skel/.config/xfce4"
+
+echo "[*] Configurando XFCE..."
 
 # Criar diretórios necessários
 mkdir -p "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml"
 mkdir -p "$XFCE_CONFIG_DIR/panel"
 
-# 1. Configurar Tema e Ícones (Sweet e Tela Icons)
-# Configurações de aparência (xfce4-settings-manager)
+# ================================
+# 1. Configurar Desktop (ícones)
+# ================================
 cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-desktop" version="1.0">
@@ -23,6 +26,9 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
 </channel>
 EOF
 
+# ================================
+# 2. Configurar tema Sweet-Dark e Tela-dark
+# ================================
 cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xsettings.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
@@ -48,9 +54,9 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xsettings.xml"
 </channel>
 EOF
 
-# 2. Configurar Painel (Estilo Zorin)
-# O painel será configurado para se parecer com o Zorin OS (painel único na parte inferior com menu estilo Whiskermenu)
-# Usando xfce4-panel-profiles para uma configuração mais robusta, mas aqui faremos o básico via xfconf
+# ================================
+# 3. Configurar painel estilo Zorin
+# ================================
 cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
@@ -75,6 +81,7 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
       <value type="int" value="9"/>
     </property>
   </property>
+
   <property name="plugins" type="empty">
     <property name="plugin-1" type="string" value="whiskermenu"/>
     <property name="plugin-2" type="string" value="tasklist"/>
@@ -89,7 +96,9 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
 </channel>
 EOF
 
-# 3. Configurar Whiskermenu (Plugin-1)
+# ================================
+# 4. Configurar Whiskermenu
+# ================================
 cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-whiskermenu.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
@@ -106,24 +115,4 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-whiskermenu.xml"
 </channel>
 EOF
 
-# 4. Configurar Thunar como gerenciador de arquivos padrão (será feito na próxima fase, mas já incluímos o pacote)
-
-# 5. Configurar LightDM GTK Greeter
-# O LightDM GTK Greeter será configurado para usar o tema Sweet-Dark
-mkdir -p airootfs/etc/lightdm
-cat << EOF > airootfs/etc/lightdm/lightdm-gtk-greeter.conf
-[greeter]
-theme-name=Sweet-Dark
-icon-theme-name=Tela-dark
-font-name=Sans 10
-background=/usr/share/backgrounds/xfce/xfce-teal.jpg
-user-background=false
-EOF
-
-# Tornar o script executável
-chmod +x airootfs/root/customize_xfce.sh
-
-# Adicionar a execução do script no profiledef.sh (ou em um script de customização pós-instalação)
-# Como estamos usando Archiso, o script deve ser executado no airootfs/root/customize_airootfs.sh se existir,
-# ou adicionado ao profiledef.sh para ser copiado e executado.
-# Vamos criar um script de customização para o airootfs.
+echo "[✔] XFCE configurado com sucesso!"
