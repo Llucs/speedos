@@ -12,6 +12,7 @@ jobs:
 
     container:
       image: archlinux:latest
+      options: --privileged   # <<< PERMITE MKARCHISO MONTAR PROC/SYS/DEV
 
     steps:
     - name: Checkout repository
