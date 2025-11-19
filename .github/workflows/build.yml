@@ -16,18 +16,21 @@ jobs:
         docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
           set -e
 
-          # Instala dependências
+          # Atualiza pacman e instala dependências
           pacman -Sy --noconfirm arch-install-scripts squashfs-tools xorriso dosfstools mtools git
 
           # Cria pasta de build
           mkdir -p /workspace/build_speedos
 
-          # Copia apenas os arquivos do SpeedOS necessários para o build
+          # Copia apenas os arquivos necessários do repo para build
           cp -R /workspace/airootfs /workspace/build_speedos/
           cp /workspace/build.sh /workspace/build_speedos/
           cp /workspace/packages.x86_64 /workspace/build_speedos/
           cp /workspace/pacman.conf /workspace/build_speedos/
           cp /workspace/profiledef.sh /workspace/build_speedos/
+
+          # Dá permissão de execução para o build.sh
+          chmod +x /workspace/build_speedos/build.sh
 
           # Vai para a pasta e executa o build
           cd /workspace/build_speedos
