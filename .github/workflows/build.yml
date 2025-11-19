@@ -1,0 +1,29 @@
+name: Build SpeedOS ISO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Arch Linux container and build ISO
+      run: |
+        docker run --rm -v $GITHUB_WORKSPACE:/workspace archlinux:latest /bin/bash -c "
+          set -e
+          pacman -Sy --noconfirm arch-install-scripts squashfs-tools xorriso dosfstools mtools git &&
+          mkdir -p /workspace/out &&
+          cp -R /workspace/speedos_archiso /workspace/build_speedos &&
+          cd /workspace/build_speedos &&
+          ./build.sh
+        "
+
+    - name: Upload ISO artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: speedos-iso
+        path: ./build_speedos/out/*.iso
