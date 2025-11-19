@@ -110,8 +110,8 @@ EOF
 
 # 5. Configurar LightDM GTK Greeter
 # O LightDM GTK Greeter será configurado para usar o tema Sweet-Dark
-mkdir -p speedos/airootfs/etc/lightdm
-cat << EOF > speedos/airootfs/etc/lightdm/lightdm-gtk-greeter.conf
+mkdir -p airootfs/etc/lightdm
+cat << EOF > airootfs/etc/lightdm/lightdm-gtk-greeter.conf
 [greeter]
 theme-name=Sweet-Dark
 icon-theme-name=Tela-dark
@@ -121,7 +121,7 @@ user-background=false
 EOF
 
 # Tornar o script executável
-chmod +x speedos/airootfs/root/customize_xfce.sh
+chmod +x airootfs/root/customize_xfce.sh
 
 # Adicionar a execução do script no profiledef.sh (ou em um script de customização pós-instalação)
 # Como estamos usando Archiso, o script deve ser executado no airootfs/root/customize_airootfs.sh se existir,
