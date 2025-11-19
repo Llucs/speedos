@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: archlinux
 
     steps:
     - name: Checkout repository
@@ -16,12 +16,8 @@ jobs:
 
     - name: Install required packages
       run: |
-        sudo apt update
-        sudo apt install -y python3-pip fakeroot squashfs-tools xorriso dosfstools mtools arch-install-scripts
-
-        # Instalar pacman + repositórios Arch no Ubuntu
-        sudo pip install pacman-package-manager
-        sudo pacman --sync --refresh --noconfirm archiso
+        sudo pacman -Syu --noconfirm
+        sudo pacman -S --noconfirm archiso git squashfs-tools xorriso dosfstools mtools
 
     - name: Prepare build folder
       run: |
