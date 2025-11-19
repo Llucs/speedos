@@ -1,3 +1,7 @@
-ALL_kver="/usr/lib/modules/*-lqx"
+# Preset de initramfs para o kernel linux-lqx
+
 ALL_config="/etc/mkinitcpio.conf"
-ALL_img="/boot/initramfs-linux-lqx.img"
+ALL_kver="/usr/lib/modules/*-lqx"
+
+default_image="/boot/initramfs-linux-lqx.img"
+default_options="-S autodetect"
