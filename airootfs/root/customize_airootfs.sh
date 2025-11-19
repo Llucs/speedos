@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Dar permissão de execução para todos os scripts
+chmod +x /root/*.sh
+
 # Executar script de criação de usuário Live
 /root/create_live_user.sh
 
