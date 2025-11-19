@@ -41,12 +41,8 @@ efibootmgr
 openssh
 systemd-ukify
 zram-generator
-preload
 haveged
 
-sweet-gtk-theme
-arc-gtk-theme
-tela-icon-theme
 xfce4-panel-profiles
 xfce4-whiskermenu-plugin
 xfce4-appfinder
@@ -55,7 +51,5 @@ xfce4-power-manager
 xfce4-screensaver
 xfce4-settings
 
-calamares
-calamares-extensions
 python-pyqt5
 python-yaml
