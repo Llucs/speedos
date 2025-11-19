@@ -1,0 +1,3 @@
+ALL_kver="/usr/lib/modules/*-lqx"
+ALL_config="/etc/mkinitcpio.conf"
+ALL_img="/boot/initramfs-linux-lqx.img"
