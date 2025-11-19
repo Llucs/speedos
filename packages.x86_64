@@ -1,6 +1,5 @@
-# Base
 base
-linux-lqx
+linux-zen
 linux-firmware
 networkmanager
 network-manager-applet
@@ -8,8 +7,6 @@ nm-connection-editor
 nano
 sudo
 bash-completion
-
-# Xorg
 xorg-server
 xorg-xinit
 mesa
@@ -17,39 +14,24 @@ mesa-demos
 xf86-video-amdgpu
 xf86-video-intel
 xf86-video-vesa
-
-# XFCE
 xfce4
 xfce4-goodies
 thunar
-
-# Display manager
 lightdm
 lightdm-gtk-greeter
-
-# Temas
-sweet-gtk-theme
-tela-icon-theme
-arc-gtk-theme
 papirus-icon-theme
-
-# Som
 pipewire
 pipewire-alsa
 pipewire-pulse
 wireplumber
 pavucontrol
-
-# Utilidades
 firefox
 btop
-neofetch
+fastfetch
 thunar-archive-plugin
 gnome-disk-utility
 htop
 git
-
-# ArchISO tools
 mkinitcpio
 arch-install-scripts
 archiso
