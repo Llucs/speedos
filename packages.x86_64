@@ -75,7 +75,7 @@ tela-icon-theme
 papirus-icon-theme
 
 # --- Instalador (Calamares e Dependências) ---
-calamares
+calamares-git
 polkit-kde-agent  <-- Preferido para Calamares (Qt)
 kpmcore
 ckbcomp
