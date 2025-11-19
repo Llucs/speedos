@@ -1,9 +1,9 @@
 # /etc/mkinitcpio.d/linux-lqx.preset
-ALL_kver="/usr/lib/modules/*-lqx"
-ALL_config="/etc/mkinitcpio.conf"
-ALL_img="/boot/initramfs-linux-lqx.img"
 
-# Para o kernel padrão, se quiser especificar:
-# PRESETS=('default')
-# default_image="/boot/initramfs-linux-lqx.img"
-# default_options=""
+ALL_config="/etc/mkinitcpio.conf"
+ALL_kver="/usr/lib/modules/*-lqx"
+
+PRESETS=('default')
+
+default_image="/boot/initramfs-linux-lqx.img"
+default_options=""
