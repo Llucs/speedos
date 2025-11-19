@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Exec=xfce4-firstboot
+Hidden=false

@@ -1,0 +1,40 @@
+# Pacotes base e essenciais para um sistema Arch Live
+base
+linux-lqx
+linux-firmware
+networkmanager
+nano
+sudo
+bash-completion
+
+# Xorg
+xorg-server
+xorg-xinit
+
+# XFCE
+xfce4
+xfce4-goodies
+thunar
+
+# Display manager
+lightdm
+lightdm-gtk-greeter
+
+# Temas
+sweet-gtk-theme
+tela-icon-theme
+arc-gtk-theme
+papirus-icon-theme
+
+# Utilidades
+firefox
+btop
+neofetch
+thunar-archive-plugin
+pavucontrol
+gnome-disk-utility
+htop
+git
+
+# Ferramentas do archiso
+mkinitcpio
