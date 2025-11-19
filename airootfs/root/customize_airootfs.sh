@@ -1,34 +1,23 @@
 #!/bin/bash
 set -e
 
-# Dar permissão de execução para todos os scripts em /root
+umask 022
+
+# 1. Garante que os scripts auxiliares sejam executáveis
 chmod +x /root/*.sh 2>/dev/null || true
 
-# Executar script de criação de usuário Live, se existir
+# 2. Cria usuário live (se o script existir)
 if [ -f /root/create_live_user.sh ]; then
     /root/create_live_user.sh
 fi
 
-# Executar script de customização do XFCE, se existir
-if [ -f /root/customize_xfce.sh ]; then
-    /root/customize_xfce.sh
+# 3. Executa a customização principal (XFCE, temas, etc)
+# CORREÇÃO: Apontando para o nome correto do arquivo que você criou
+if [ -f /root/customize_root.sh ]; then
+    /root/customize_root.sh
 fi
 
-# Habilitar serviços de otimização (se existirem)
-if [ -e /usr/lib/systemd/system/zram-generator.service ]; then
-    systemctl enable zram-generator.service || true
-fi
-
-if [ -e /usr/lib/systemd/system/haveged.service ]; then
-    systemctl enable haveged.service || true
-fi
-
-# Configurar LightDM como display manager (se existir)
-if [ -e /usr/lib/systemd/system/lightdm.service ]; then
-    systemctl enable lightdm.service || true
-fi
-
-# Criar autostart do Calamares OEM
+# 4. Configura o autostart do instalador OEM/Calamares
 mkdir -p /etc/xdg/autostart
 cat > /etc/xdg/autostart/speedos-oem-setup.desktop <<EOF
 [Desktop Entry]
