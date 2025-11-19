@@ -1,48 +1,43 @@
+# --- Sistema Base e Kernel ---
 base
+base-devel
 linux-firmware
-networkmanager
-network-manager-applet
-nm-connection-editor
-nano
+linux-lqx
+linux-lqx-headers
+mkinitcpio
 sudo
+nano
+git
+openssh
+haveged
+zram-generator
 bash-completion
-xorg-server
-xorg-xinit
+
+# --- Bootloaders e ISO ---
+grub
+efibootmgr
+os-prober
+syslinux
+archiso
+arch-install-scripts
+memtest86+
+systemd-ukify
+
+# --- Drivers Gráficos ---
 mesa
 mesa-demos
 xf86-video-amdgpu
 xf86-video-intel
 xf86-video-vesa
+xf86-video-vmware
+xorg-server
+xorg-xinit
+
+# --- Ambiente Desktop (XFCE) ---
 xfce4
 xfce4-goodies
 thunar
-lightdm
-lightdm-gtk-greeter
-papirus-icon-theme
-pipewire
-pipewire-alsa
-pipewire-pulse
-wireplumber
-pavucontrol
-firefox
-btop
-fastfetch
 thunar-archive-plugin
-gnome-disk-utility
-htop
-git
-mkinitcpio
-arch-install-scripts
-archiso
-syslinux
-memtest86+
-grub
-efibootmgr
-openssh
-systemd-ukify
-zram-generator
-haveged
-
 xfce4-panel-profiles
 xfce4-whiskermenu-plugin
 xfce4-appfinder
@@ -51,5 +46,45 @@ xfce4-power-manager
 xfce4-screensaver
 xfce4-settings
 
+# --- Display Manager ---
+lightdm
+lightdm-gtk-greeter
+lightdm-gtk-greeter-settings
+
+# --- Áudio (Pipewire) ---
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+pavucontrol
+
+# --- Rede ---
+networkmanager
+network-manager-applet
+nm-connection-editor
+
+# --- Aplicativos e Ferramentas ---
+firefox
+btop
+fastfetch
+gnome-disk-utility
+htop
+
+# --- Customização (Do seu Repo Local) ---
+sweet-gtk-theme
+sweet-theme-git
+tela-icon-theme
+papirus-icon-theme
+
+# --- Instalador (Calamares e Dependências) ---
+calamares-git
+calamares-extensions-git
+kpmcore
+ckbcomp
+libsdeal
+polkit-gnome
+qt5-base
+qt5-svg
+qt5-declarative
 python-pyqt5
 python-yaml
