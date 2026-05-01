@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 iso_name="speedos"
-iso_label="SPEEDOS_$(date +%Y%m)"
+iso_label="SPEEDOS"
 iso_publisher="SpeedOS Project (Llucs)"
 iso_application="SpeedOS Live Environment"
 iso_version="1.0"
