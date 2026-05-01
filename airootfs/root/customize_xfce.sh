@@ -35,14 +35,8 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xsettings.xml"
   <property name="Net" type="empty">
     <property name="ThemeName" type="string" value="Sweet-Dark"/>
     <property name="IconThemeName" type="string" value="Tela-dark"/>
-    <property name="DoubleClickTime" type="int" value="400"/>
-    <property name="DoubleClickDistance" type="int" value="5"/>
-    <property name="DndDragThreshold" type="int" value="5"/>
-    <property name="CursorBlink" type="bool" value="true"/>
-    <property name="CursorBlinkTime" type="int" value="1200"/>
     <property name="CursorThemeName" type="string" value="Adwaita"/>
     <property name="CursorThemeSize" type="int" value="24"/>
-    <property name="WindowTiling" type="bool" value="true"/>
   </property>
   <property name="Xft" type="empty">
     <property name="DPI" type="int" value="96"/>
@@ -64,6 +58,7 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
   <property name="panels" type="array">
     <value type="int" value="1"/>
   </property>
+
   <property name="panel-1" type="empty">
     <property name="position" type="string" value="p=6;x=0;y=0"/>
     <property name="length" type="uint" value="100"/>
@@ -97,20 +92,18 @@ cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
 EOF
 
 # ================================
-# 4. Configurar Whiskermenu
+# 4. Configurar Whisker Menu
 # ================================
-cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-whiskermenu.xml"
+cat << EOF > "$XFCE_CONFIG_DIR/xfconf/xfce-perchannel-xml/xfce4-panel-plugin-1.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xfce4-panel" version="1.0">
-  <property name="plugins" type="empty">
-    <property name="whiskermenu" type="empty">
-      <property name="button-icon" type="string" value="start-here"/>
-      <property name="button-title" type="string" value="SpeedOS"/>
-      <property name="show-button-title" type="bool" value="false"/>
-      <property name="show-command-line" type="bool" value="true"/>
-      <property name="show-recent-files" type="bool" value="true"/>
-      <property name="view-mode" type="int" value="0"/>
-    </property>
+  <property name="plugin-1" type="empty">
+    <property name="button-icon" type="string" value="start-here"/>
+    <property name="button-title" type="string" value="SpeedOS"/>
+    <property name="show-button-title" type="bool" value="false"/>
+    <property name="show-command-line" type="bool" value="true"/>
+    <property name="show-recent-files" type="bool" value="true"/>
+    <property name="view-mode" type="int" value="0"/>
   </property>
 </channel>
 EOF
