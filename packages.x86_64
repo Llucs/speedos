@@ -35,6 +35,11 @@ xorg-xinit
 # --- Ambiente Desktop (XFCE) ---
 xfce4
 xfce4-goodies
+xfce4-session
+xfce4-terminal
+xfconf
+garcon
+exo
 thunar
 thunar-archive-plugin
 xfce4-panel-profiles
@@ -49,6 +54,7 @@ xfce4-settings
 lightdm
 lightdm-gtk-greeter
 lightdm-gtk-greeter-settings
+accountsservice
 
 # --- Áudio (Pipewire) ---
 pipewire
@@ -69,17 +75,27 @@ fastfetch
 gnome-disk-utility
 htop
 
+# --- Performance / Sistema ---
+cpupower
+earlyoom
+fstrim
+
+# --- Visual ---
+picom
+ttf-dejavu
+ttf-liberation
+noto-fonts
+
 # --- Customização (Do seu Repo Local) ---
 sweet-gtk-theme
 tela-icon-theme
 papirus-icon-theme
 
 # --- Instalador (Calamares e Dependências) ---
-calamares-git
-polkit-kde-agent  <-- Preferido para Calamares (Qt)
+calamares
+polkit-kde-agent
 kpmcore
 ckbcomp
-# Removido: polkit-gnome (Para evitar conflitos com polkit-kde-agent)
 qt5-base
 qt5-svg
 qt5-declarative
