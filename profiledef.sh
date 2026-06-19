@@ -10,13 +10,22 @@ install_dir="speedos"
 
 buildmodes=('iso')
 
-bootmodes=('bios.syslinux' 'bios.grub.mbr' 'uefi.systemd-boot')
+bootmodes=(
+  'bios.syslinux.mbr'
+  'uefi.systemd-boot'
+)
 
 arch="x86_64"
 pacman_conf="pacman.conf"
 
 airootfs_image_type="squashfs"
-airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15')
+
+airootfs_image_tool_options=(
+  '-comp'
+  'zstd'
+  '-Xcompression-level'
+  '15'
+)
 
 pacman_args=(
   '--noconfirm'
